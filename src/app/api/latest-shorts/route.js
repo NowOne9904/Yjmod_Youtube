@@ -1,6 +1,8 @@
 import * as cheerio from 'cheerio';
 import Parser from 'rss-parser';
 
+export const dynamic = 'force-dynamic';
+
 const parser = new Parser({
     customFields: {
         item: [
@@ -58,7 +60,7 @@ export async function GET(request) {
                         // Price is typically in an element with class sit_opt_prc or similar
                         // We'll try to find a strong tag with a price or a specific ID
                         // We may need to inspect the actual product page HTML to refine selectors
-                        let priceText = $('#sit_tot_price').text() || $('.sit_opt_prc').text() || '';
+                        let priceText = $('#_it_price').text() || $('#r_1set_price').text() || $('#sit_tot_price').text() || $('.sit_opt_prc').text() || '';
                         if (priceText) {
                             productPrice = priceText.trim();
                         }
