@@ -24,11 +24,14 @@ export async function GET(request) {
         // We'll need to fetch the RSS feed
         const feed = await parser.parseURL(YOUTUBE_RSS_URL);
 
-        const latestVideos = feed.items.slice(0, 4); // Get the 4 latest videos
+        // Fetch more videos initially because we might filter some out (the ones without prices)
+        const latestVideos = feed.items.slice(0, 10);
 
         const results = [];
 
         for (const video of latestVideos) {
+            // Stop processing if we already have 4 valid items
+            if (results.length >= 4) break;
             // 2. Extract product URL from the video description
             // In RSS, the description is video.content or video.contentSnippet
             let description = "";
@@ -70,15 +73,18 @@ export async function GET(request) {
                 }
             }
 
-            results.push({
-                videoId: video.id.replace('yt:video:', ''), // extract ID from yt:video:ID
-                title: video.title,
-                link: video.link,
-                productLink,
-                productTitle,
-                productPrice,
-                productImage
-            });
+            // Only push to results if we found a valid price (meaning it's a real product item page)
+            if (productPrice !== "Price Not Found" && productPrice !== "홈페이지 참조" && productPrice !== "") {
+                results.push({
+                    videoId: video.id.replace('yt:video:', ''), // extract ID from yt:video:ID
+                    title: video.title,
+                    link: video.link,
+                    productLink,
+                    productTitle,
+                    productPrice,
+                    productImage
+                });
+            }
         }
 
         return new Response(JSON.stringify(results), {
