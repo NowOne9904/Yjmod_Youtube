@@ -41,7 +41,7 @@ export async function GET(request) {
             let productLink = urlMatch ? urlMatch[0] : null;
 
             let productTitle = "Product Title Not Found";
-            let productPrice = "Price Not Found";
+            let productPrice = "홈페이지 참조";
             let productImage = "";
 
             if (productLink) {
@@ -95,4 +95,15 @@ export async function GET(request) {
         console.error('Error fetching latest shorts:', error);
         return new Response(JSON.stringify({ error: error.message }), { status: 500 });
     }
+}
+
+export async function OPTIONS(request) {
+    return new Response(null, {
+        status: 204,
+        headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'GET, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+        },
+    });
 }
