@@ -1,83 +1,152 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YJ Shorts Auto Loader</title>
-    <link rel="stylesheet" href="./styles.css">
-</head>
-<body>
+<!-- ====================================================
+     YJ SHORTS EMBED - 자사몰 어드민에 붙여넣는 코드
+     ==================================================== -->
 
+<!-- CSS -->
+<style>
+/* ── 기본 레이아웃 ── */
+.yj-shorts-container{width:100%;max-width:1200px;margin:0 auto;font-family:'Inter','Noto Sans KR',sans-serif;color:#333}
+
+/* ── LIVE 헤더 ── */
+.yj-shorts-header{margin-bottom:28px;display:flex;flex-direction:column;gap:10px}
+.yj-live-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.yj-live-badge{display:inline-flex;align-items:center;gap:6px;background:#ff0000;color:#fff;font-size:11px;font-weight:900;letter-spacing:2px;padding:4px 10px;border-radius:4px}
+.yj-live-dot{width:7px;height:7px;background:#fff;border-radius:50%;animation:yj-pulse 1.2s ease-in-out infinite}
+@keyframes yj-pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
+.yj-live-title{font-size:26px;font-weight:900;color:#111;margin:0;line-height:1.2}
+.yj-live-sub{font-size:13px;color:#888;margin:0;display:flex;align-items:center;gap:6px}
+.yj-live-sub::before{content:'';display:inline-block;width:8px;height:8px;border-radius:50%;background:#22c55e;animation:yj-pulse 2s ease-in-out infinite}
+.yj-update-badge{display:inline-flex;align-items:center;gap:5px;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:20px;padding:3px 10px;font-size:11px;color:#64748b;font-weight:600}
+
+/* ── 그리드 ── */
+.yj-shorts-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+
+/* ── 실제 카드 ── */
+.yj-short-card{display:flex;flex-direction:column;background:#fff;border:1px solid #eee;border-radius:12px;overflow:hidden;transition:transform .2s,box-shadow .2s;box-shadow:0 4px 6px rgba(0,0,0,.05)}
+.yj-short-card:hover{transform:translateY(-5px);box-shadow:0 12px 20px rgba(0,0,0,.1)}
+.yj-video-wrapper{width:100%;aspect-ratio:9/16;background:#000;position:relative;overflow:hidden}
+.yj-video-wrapper iframe{width:100%;height:100%;border:none}
+.yj-watermark{position:absolute;bottom:12px;left:0;width:100%;text-align:center;color:#fff;font-weight:900;font-size:16px;letter-spacing:2px;text-shadow:0 2px 4px rgba(0,0,0,.8);pointer-events:none;z-index:10}
+.yj-product-info{display:flex;padding:14px;gap:10px;align-items:center;flex-grow:1}
+.yj-product-thumb{width:56px;height:56px;border-radius:6px;border:1px solid #eee;overflow:hidden;flex-shrink:0}
+.yj-product-thumb img{width:100%;height:100%;object-fit:contain}
+.yj-product-texts{display:flex;flex-direction:column;justify-content:center;min-width:0}
+.yj-prod-label{font-size:10px;color:#aaa;text-transform:uppercase;letter-spacing:.5px}
+.yj-prod-title{font-size:13px;font-weight:700;color:#222;margin:2px 0 5px;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.yj-prod-price{font-size:16px;font-weight:900;color:#e53935}
+.yj-buy-btn{display:block;background:#111;color:#fff;text-align:center;padding:14px 0;font-weight:700;font-size:13px;text-decoration:none;transition:background .2s;letter-spacing:.5px}
+.yj-buy-btn:hover{background:#e53935}
+
+/* ── 스켈레톤 카드 ── */
+.yj-skeleton-card{display:flex;flex-direction:column;background:#fff;border:1px solid #eee;border-radius:12px;overflow:hidden;box-shadow:0 4px 6px rgba(0,0,0,.05)}
+.yj-skeleton-video{width:100%;aspect-ratio:9/16;background:#f0f0f0;position:relative;overflow:hidden}
+.yj-skeleton-video::after,.yj-skeleton-line::after,.yj-skeleton-thumb::after,.yj-skeleton-btn::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,.6) 50%,transparent 100%);background-size:200% 100%;animation:yj-shimmer 1.4s ease-in-out infinite}
+@keyframes yj-shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.yj-skeleton-info{display:flex;padding:14px;gap:10px;align-items:center}
+.yj-skeleton-thumb{width:56px;height:56px;border-radius:6px;background:#f0f0f0;flex-shrink:0;position:relative;overflow:hidden}
+.yj-skeleton-lines{flex:1;display:flex;flex-direction:column;gap:6px}
+.yj-skeleton-line{height:12px;border-radius:6px;background:#f0f0f0;position:relative;overflow:hidden}
+.yj-skeleton-line.w60{width:60%}
+.yj-skeleton-line.w40{width:40%}
+.yj-skeleton-btn{height:46px;background:#f0f0f0;position:relative;overflow:hidden}
+
+/* ── 에러 ── */
+.yj-error{padding:32px;text-align:center;color:#999;font-size:14px;grid-column:1/-1}
+
+/* ── 반응형 ── */
+@media(max-width:1024px){.yj-shorts-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.yj-shorts-grid{grid-template-columns:1fr}}
+</style>
+
+<!-- HTML -->
 <div class="yj-shorts-container">
-    <div class="yj-shorts-header">
-        <h2>하이엔드 PC, 무이자로 부담없이!</h2>
-        <p>24개월, 36개월 무이자로 부담없이 하이엔드 PC를 구매하세요!</p>
+  <div class="yj-shorts-header">
+    <div class="yj-live-row">
+      <div class="yj-live-badge">
+        <span class="yj-live-dot"></span>LIVE
+      </div>
+      <div class="yj-update-badge">🕐 6시간마다 자동 갱신</div>
     </div>
+    <h2 class="yj-live-title">하이엔드 PC, 무이자로 부담없이!</h2>
+    <p class="yj-live-sub">유튜브 최신 쇼츠에서 실시간으로 불러온 추천 PC</p>
+  </div>
 
-    <div class="yj-shorts-grid" id="yj-shorts-grid">
-        <!-- Load skeleton or spinner initially -->
-        <p>최신 추천 PC 쇼츠를 불러오는 중입니다...</p>
-    </div>
+  <div class="yj-shorts-grid" id="yj-shorts-grid">
+    <!-- 스켈레톤 로딩 (API 응답 후 교체) -->
+    <div class="yj-skeleton-card"><div class="yj-skeleton-video"></div><div class="yj-skeleton-info"><div class="yj-skeleton-thumb"></div><div class="yj-skeleton-lines"><div class="yj-skeleton-line"></div><div class="yj-skeleton-line w60"></div><div class="yj-skeleton-line w40"></div></div></div><div class="yj-skeleton-btn"></div></div>
+    <div class="yj-skeleton-card"><div class="yj-skeleton-video"></div><div class="yj-skeleton-info"><div class="yj-skeleton-thumb"></div><div class="yj-skeleton-lines"><div class="yj-skeleton-line"></div><div class="yj-skeleton-line w60"></div><div class="yj-skeleton-line w40"></div></div></div><div class="yj-skeleton-btn"></div></div>
+    <div class="yj-skeleton-card"><div class="yj-skeleton-video"></div><div class="yj-skeleton-info"><div class="yj-skeleton-thumb"></div><div class="yj-skeleton-lines"><div class="yj-skeleton-line"></div><div class="yj-skeleton-line w60"></div><div class="yj-skeleton-line w40"></div></div></div><div class="yj-skeleton-btn"></div></div>
+    <div class="yj-skeleton-card"><div class="yj-skeleton-video"></div><div class="yj-skeleton-info"><div class="yj-skeleton-thumb"></div><div class="yj-skeleton-lines"><div class="yj-skeleton-line"></div><div class="yj-skeleton-line w60"></div><div class="yj-skeleton-line w40"></div></div></div><div class="yj-skeleton-btn"></div></div>
+  </div>
 </div>
 
+<!-- JavaScript -->
 <script>
-    // Vercel deployment URL will be used here later.
-    // For now, testing with relative or localhost path if running NextJS server.
-    const API_URL = '/api/latest-shorts'; 
-    // In production embedded script, API_URL will be absolute like 'https://yj-shorts-api.vercel.app/api/latest-shorts'
+(function () {
+  var API_URL = 'https://yjmod-youtube.vercel.app/api/latest-shorts';
+  var CACHE_KEY = 'yj_shorts_v2';
+  var CACHE_TTL = 6 * 60 * 60 * 1000; // 6시간
 
-    async function loadShorts() {
-        const grid = document.getElementById('yj-shorts-grid');
-        try {
-            const res = await fetch(API_URL);
-            if (!res.ok) throw new Error('API fetch failed');
-            const data = await res.json();
-            
-            grid.innerHTML = ''; // Clear loading text
-
-            data.forEach(item => {
-                const card = document.createElement('div');
-                card.className = 'yj-short-card';
-                
-                // Format price a bit if needed (expecting scraped text to already have "원")
-                const priceText = item.productPrice ? `<span class="price-val">${item.productPrice}</span>` : '가격 정보 없음';
-                
-                // Check if product link exists, else fallback to video link
-                const targetLink = item.productLink || item.link;
-
-                card.innerHTML = `
-                    <div class="yj-video-wrapper">
-                        <!-- We can embed iframe or just a clickable thumbnail.
-                             Design shows autoplaying/short style, so we can use a muted loop iframe or high-res thumbnail.
-                             For performance, large custom thumbnail overlaid with a play button or YouTube iframe. -->
-                        <iframe width="100%" height="100%" src="https://www.youtube.com/embed/${item.videoId}?autoplay=0&mute=1&loop=1&playlist=${item.videoId}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-                        <div class="yj-watermark">YJ MOD</div>
-                    </div>
-                    <div class="yj-product-info">
-                        <div class="yj-product-thumb">
-                            ${item.productImage ? `<img src="${item.productImage}" alt="${item.productTitle}">` : '<div class="no-img">No Image</div>'}
-                        </div>
-                        <div class="yj-product-texts">
-                            <div class="yj-prod-label">제품명</div>
-                            <div class="yj-prod-title">${item.productTitle}</div>
-                            <div class="yj-prod-price">${priceText}</div>
-                        </div>
-                    </div>
-                    <a href="${targetLink}" target="_blank" class="yj-buy-btn">
-                        제품 바로가기 ▶
-                    </a>
-                `;
-                grid.appendChild(card);
-            });
-        } catch (error) {
-            console.error(error);
-            grid.innerHTML = '<p>쇼츠 정보를 불러오지 못했습니다.</p>';
-        }
+  function renderCards(data) {
+    var grid = document.getElementById('yj-shorts-grid');
+    if (!data || data.length === 0) {
+      grid.innerHTML = '<p class="yj-error">추천 PC 정보를 불러오지 못했습니다.</p>';
+      return;
     }
+    grid.innerHTML = '';
+    data.forEach(function (item) {
+      var card = document.createElement('div');
+      card.className = 'yj-short-card';
+      var targetLink = item.productLink || item.link;
+      var thumb = item.productImage
+        ? '<img src="' + item.productImage + '" alt="제품이미지" loading="lazy">'
+        : '<div style="font-size:9px;color:#ccc;text-align:center;padding-top:20px;line-height:1.4">No<br>Image</div>';
+      var embedSrc = 'https://www.youtube.com/embed/' + item.videoId
+        + '?autoplay=1&mute=1&loop=1&playlist=' + item.videoId + '&rel=0&playsinline=1';
+      card.innerHTML =
+        '<div class="yj-video-wrapper">' +
+          '<iframe src="' + embedSrc + '" title="' + item.title + '"' +
+          ' frameborder="0"' +
+          ' allow="autoplay;accelerometer;clipboard-write;encrypted-media;gyroscope;picture-in-picture"' +
+          ' allowfullscreen loading="lazy"></iframe>' +
+          '<div class="yj-watermark">YJ MOD</div>' +
+        '</div>' +
+        '<div class="yj-product-info">' +
+          '<div class="yj-product-thumb">' + thumb + '</div>' +
+          '<div class="yj-product-texts">' +
+            '<div class="yj-prod-label">추천 PC</div>' +
+            '<div class="yj-prod-title">' + item.productTitle + '</div>' +
+            '<div class="yj-prod-price">' + item.productPrice + '</div>' +
+          '</div>' +
+        '</div>' +
+        '<a href="' + targetLink + '" target="_blank" class="yj-buy-btn">제품 바로가기 ▶</a>';
+      grid.appendChild(card);
+    });
+  }
 
-    // Initialize
-    loadShorts();
+  function loadShorts() {
+    // 클라이언트 캐시 확인 (6시간)
+    try {
+      var cached = JSON.parse(localStorage.getItem(CACHE_KEY) || 'null');
+      if (cached && (Date.now() - cached.ts) < CACHE_TTL && cached.data && cached.data.length > 0) {
+        renderCards(cached.data);
+        return;
+      }
+    } catch (e) {}
+
+    // API 호출 → 성공 시 localStorage에도 저장
+    fetch(API_URL)
+      .then(function (res) { if (!res.ok) throw new Error(); return res.json(); })
+      .then(function (data) {
+        try { localStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), data: data })); } catch (e) {}
+        renderCards(data);
+      })
+      .catch(function () {
+        document.getElementById('yj-shorts-grid').innerHTML =
+          '<p class="yj-error">쇼츠 정보를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.</p>';
+      });
+  }
+
+  loadShorts();
+})();
 </script>
-
-</body>
-</html>

@@ -1,6 +1,7 @@
 import * as cheerio from 'cheerio';
 
-export const dynamic = 'force-dynamic';
+// 6시간마다 Vercel CDN 캐시 재검증
+export const revalidate = 21600;
 
 const CHANNEL_ID = 'UCaOwfLJxMjZ8RCBwg8_c90A';
 
@@ -23,7 +24,6 @@ function decodeHtmlEntities(str) {
 }
 
 async function getLatestVideoIds() {
-    // uploads playlist ID = "UU" + channelId.slice(2)
     const uploadsPlaylistId = 'UU' + CHANNEL_ID.slice(2);
     const res = await fetch('https://www.youtube.com/youtubei/v1/browse', {
         method: 'POST',
@@ -37,35 +37,49 @@ async function getLatestVideoIds() {
     const data = await res.json();
     const str = JSON.stringify(data);
     const ids = [...str.matchAll(/"videoId":"([a-zA-Z0-9_-]{11})"/g)].map(m => m[1]);
-    return [...new Set(ids)].slice(0, 15);
+    // Shorts 필터링을 위해 더 많은 영상 ID를 가져옴
+    return [...new Set(ids)].slice(0, 25);
 }
 
 async function getVideoInfo(videoId) {
-    const res = await fetch(`https://www.youtube.com/watch?v=${videoId}`, {
+    // /shorts/VIDEO_ID 로 접근:
+    //   Short 영상 → HTTP 200, URL이 /shorts/ 유지
+    //   일반 영상 → 303 리다이렉트 → /watch?v= URL 로 이동
+    const res = await fetch(`https://www.youtube.com/shorts/${videoId}`, {
         headers: {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36',
             'Accept-Language': 'ko-KR,ko;q=0.9',
         },
     });
     if (!res.ok) return null;
+
+    // 리다이렉트 후 URL에 /shorts/ 가 없으면 → Shorts가 아님
+    if (!res.url.includes('/shorts/')) return null;
+
     const html = await res.text();
 
     // 제목: og:title 메타 태그 (HTML 엔티티 디코딩)
     const titleMatch = html.match(/<meta(?:\s+[^>]*)?\s+(?:property="og:title"|name="title")\s+content="([^"]+)"/);
     const title = decodeHtmlEntities(titleMatch?.[1] || '');
 
-    // product URL: YouTube redirect URL의 q= 파라미터에서 추출
-    // 형태: youtube.com/redirect?...&q=https%3A%2F%2Fwww.youngjaecomputer.com%2F...
+    // product URL 추출 (두 가지 형태 처리):
+    //   watch 페이지: youtube.com/redirect?q=https%3A%2F%2Fwww.youngjaecomputer...
+    //   shorts 페이지: {"text":"https://www.youngjaecomputer..."}
     let productLink = null;
     const redirectMatch = html.match(/q=(https%3A%2F%2F(?:www\.)?youngjaecomputer[^"&\\\s]+)/i);
     if (redirectMatch) {
         productLink = decodeURIComponent(redirectMatch[1]);
+    } else {
+        const directMatch = html.match(/"text":"(https?:\/\/(?:www\.)?youngjaecomputer\.com\/[^"]+)"/i);
+        if (directMatch) {
+            productLink = directMatch[1];
+        }
     }
 
     return {
         videoId,
         title,
-        link: `https://www.youtube.com/watch?v=${videoId}`,
+        link: `https://www.youtube.com/shorts/${videoId}`,
         productLink,
     };
 }
@@ -79,6 +93,7 @@ export async function GET(request) {
             if (results.length >= 4) break;
 
             const videoInfo = await getVideoInfo(videoId);
+            // getVideoInfo가 null이면 Shorts가 아닌 영상 → 스킵
             if (!videoInfo || !videoInfo.productLink) continue;
 
             let productTitle = 'Product Title Not Found';
