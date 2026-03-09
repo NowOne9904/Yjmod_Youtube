@@ -90,7 +90,9 @@ async function getVideoInfo(videoId) {
     };
 }
 
-export async function GET(request) {
+export const dynamic = 'force-static';
+
+export async function GET() {
     try {
         const videoIds = await getLatestVideoIds();
         const results = [];
@@ -161,6 +163,7 @@ export async function GET(request) {
             status: 200,
             headers: {
                 'Content-Type': 'application/json',
+                'Cache-Control': 'public, s-maxage=21600, stale-while-revalidate=3600',
                 'Access-Control-Allow-Origin': '*',
                 'Access-Control-Allow-Methods': 'GET',
             },
