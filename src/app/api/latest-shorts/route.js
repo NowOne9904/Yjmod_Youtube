@@ -23,21 +23,27 @@ function decodeHtmlEntities(str) {
         .replace(/&gt;/g, '>');
 }
 
+function fetchWithTimeout(url, options = {}, timeoutMs = 8000) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+    return fetch(url, { ...options, signal: controller.signal })
+        .finally(() => clearTimeout(timer));
+}
+
 async function getLatestVideoIds() {
     const uploadsPlaylistId = 'UU' + CHANNEL_ID.slice(2);
-    const res = await fetch('https://www.youtube.com/youtubei/v1/browse', {
+    const res = await fetchWithTimeout('https://www.youtube.com/youtubei/v1/browse', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
             context: INNERTUBE_CONTEXT,
             browseId: 'VL' + uploadsPlaylistId,
         }),
-    });
+    }, 10000);
     if (!res.ok) throw new Error(`InnerTube browse failed: ${res.status}`);
     const data = await res.json();
     const str = JSON.stringify(data);
     const ids = [...str.matchAll(/"videoId":"([a-zA-Z0-9_-]{11})"/g)].map(m => m[1]);
-    // Shorts 필터링을 위해 더 많은 영상 ID를 가져옴
     return [...new Set(ids)].slice(0, 25);
 }
 
@@ -45,12 +51,12 @@ async function getVideoInfo(videoId) {
     // /shorts/VIDEO_ID 로 접근:
     //   Short 영상 → HTTP 200, URL이 /shorts/ 유지
     //   일반 영상 → 303 리다이렉트 → /watch?v= URL 로 이동
-    const res = await fetch(`https://www.youtube.com/shorts/${videoId}`, {
+    const res = await fetchWithTimeout(`https://www.youtube.com/shorts/${videoId}`, {
         headers: {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36',
             'Accept-Language': 'ko-KR,ko;q=0.9',
         },
-    });
+    }, 8000);
     if (!res.ok) return null;
 
     // 리다이렉트 후 URL에 /shorts/ 가 없으면 → Shorts가 아님
@@ -89,50 +95,65 @@ export async function GET(request) {
         const videoIds = await getLatestVideoIds();
         const results = [];
 
-        for (const videoId of videoIds) {
+        // 한 번에 6개씩 병렬 처리하여 로딩 속도 최적화
+        const batchSize = 6;
+        for (let i = 0; i < videoIds.length; i += batchSize) {
             if (results.length >= 4) break;
 
-            const videoInfo = await getVideoInfo(videoId);
-            // getVideoInfo가 null이면 Shorts가 아닌 영상 → 스킵
-            if (!videoInfo || !videoInfo.productLink) continue;
+            const batch = videoIds.slice(i, i + batchSize);
+            const batchPromises = batch.map(async (videoId) => {
+                try {
+                    const videoInfo = await getVideoInfo(videoId);
+                    if (!videoInfo || !videoInfo.productLink) return null;
 
-            let productTitle = 'Product Title Not Found';
-            let productPrice = '홈페이지 참조';
-            let productImage = '';
+                    let productTitle = '';
+                    let productPrice = '';
+                    let productImage = '';
 
-            try {
-                const productRes = await fetch(videoInfo.productLink);
-                if (productRes.ok) {
-                    const html = await productRes.text();
-                    const $ = cheerio.load(html);
+                    try {
+                        const productRes = await fetchWithTimeout(videoInfo.productLink, {}, 5000);
+                        if (productRes.ok) {
+                            const html = await productRes.text();
+                            const $ = cheerio.load(html);
 
-                    productTitle = $('meta[property="og:title"]').attr('content') || $('title').text();
-                    productImage = $('meta[property="og:image"]').attr('content') || '';
+                            productTitle = $('meta[property="og:title"]').attr('content') || $('title').text() || '';
+                            productImage = $('meta[property="og:image"]').attr('content') || '';
 
-                    let priceText =
-                        $('#_it_price').text() ||
-                        $('#r_1set_price').text() ||
-                        $('#sit_tot_price').text() ||
-                        $('.sit_opt_prc').text() ||
-                        '';
-                    if (priceText) {
-                        productPrice = priceText.trim();
+                            const priceText =
+                                $('#_it_price').text() ||
+                                $('#r_1set_price').text() ||
+                                $('#sit_tot_price').text() ||
+                                $('.sit_opt_prc').text() ||
+                                '';
+                            if (priceText) productPrice = priceText.trim();
+                        }
+                    } catch (e) {
+                        console.error('Product scrape timeout/error:', videoInfo.productLink);
                     }
-                }
-            } catch (e) {
-                console.error('Failed to scrape product page:', videoInfo.productLink, e);
-            }
 
-            if (productPrice !== 'Price Not Found' && productPrice !== '홈페이지 참조' && productPrice !== '') {
-                results.push({
-                    videoId,
-                    title: videoInfo.title,
-                    link: videoInfo.link,
-                    productLink: videoInfo.productLink,
-                    productTitle,
-                    productPrice,
-                    productImage,
-                });
+                    if (productPrice) {
+                        return {
+                            videoId,
+                            title: videoInfo.title,
+                            link: videoInfo.link,
+                            productLink: videoInfo.productLink,
+                            productTitle,
+                            productPrice,
+                            productImage,
+                        };
+                    }
+                    return null;
+                } catch (e) {
+                    // 개별 영상 에러 → 무시하고 다음 영상 진행
+                    return null;
+                }
+            });
+
+            const batchResults = await Promise.all(batchPromises);
+            for (const res of batchResults) {
+                if (res && results.length < 4) {
+                    results.push(res);
+                }
             }
         }
 

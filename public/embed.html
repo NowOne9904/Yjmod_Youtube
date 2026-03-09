@@ -2,139 +2,508 @@
      YJ SHORTS EMBED - 자사몰 어드민에 붙여넣는 코드
      ==================================================== -->
 
+<!-- PRECONNECT -->
+<link rel="preconnect" href="https://yjmod-youtube.vercel.app" crossorigin>
+<link rel="preconnect" href="https://i.ytimg.com" crossorigin>
+
 <!-- CSS -->
 <style>
-/* ── 리셋 & 기본 ── */
-.yj-wrap{width:100%;max-width:1200px;margin:0 auto;font-family:-apple-system,'Pretendard','Noto Sans KR',sans-serif;color:#1a1a1a;position:relative;padding:0 4px}
-.yj-wrap *{box-sizing:border-box}
+  /* ── 리셋 & 기본 ── */
+  .yj-wrap {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    font-family: -apple-system, 'Pretendard', 'Noto Sans KR', sans-serif;
+    color: #1a1a1a;
+    position: relative;
+    padding: 0 4px
+  }
 
-/* ── 상단 프로그레스 바 ── */
-.yj-progress{position:absolute;top:0;left:0;right:0;height:2px;background:#f0f0f0;border-radius:2px;overflow:hidden;z-index:99}
-.yj-progress-inner{height:100%;width:30%;background:linear-gradient(90deg,#e53935,#ff6d00);border-radius:2px;animation:yj-prog 1.4s ease-in-out infinite}
-@keyframes yj-prog{0%{transform:translateX(-100%)}100%{transform:translateX(400%)}}
-.yj-progress.done .yj-progress-inner{width:100%;animation:none;transition:opacity .5s .3s}
-.yj-progress.done{opacity:0;transition:opacity .5s .5s}
+  .yj-wrap * {
+    box-sizing: border-box
+  }
 
-/* ── 헤더 ── */
-.yj-header{padding:8px 0 20px;display:flex;align-items:baseline;justify-content:space-between;border-bottom:1px solid #f0f0f0;margin-bottom:24px}
-.yj-header-left{display:flex;flex-direction:column;gap:4px}
-.yj-title{font-size:22px;font-weight:800;color:#1a1a1a;margin:0;line-height:1.3;letter-spacing:-.3px}
-.yj-title em{font-style:normal;color:#e53935;font-weight:900}
-.yj-sub{font-size:12px;color:#999;margin:0;display:flex;align-items:center;gap:6px;font-weight:400}
-.yj-sub-dot{width:6px;height:6px;border-radius:50%;background:#4caf50;display:inline-block;animation:yj-blink 2s ease infinite}
-@keyframes yj-blink{0%,100%{opacity:1}50%{opacity:.3}}
-.yj-channel-tag{display:inline-flex;align-items:center;gap:4px;font-size:11px;color:#888;background:#f7f7f7;border:1px solid #eee;border-radius:6px;padding:4px 10px;font-weight:600;white-space:nowrap}
+  /* ── 상단 프로그레스 바 ── */
+  .yj-progress {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: #f0f0f0;
+    border-radius: 2px;
+    overflow: hidden;
+    z-index: 99
+  }
 
-/* ── 그리드 ── */
-.yj-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+  .yj-progress-inner {
+    height: 100%;
+    width: 30%;
+    background: linear-gradient(90deg, #e53935, #ff6d00);
+    border-radius: 2px;
+    animation: yj-prog 1.4s ease-in-out infinite
+  }
 
-/* ── 카드 ── */
-.yj-card{
-  display:flex;flex-direction:column;
-  background:#fff;border-radius:12px;overflow:hidden;
-  border:1px solid #eaeaea;
-  transition:transform .3s cubic-bezier(.22,1,.36,1),box-shadow .3s cubic-bezier(.22,1,.36,1);
-  opacity:0;transform:translateY(20px);
-  animation:yj-fade-in .5s cubic-bezier(.22,1,.36,1) forwards;
-}
-.yj-card:nth-child(1){animation-delay:0s}
-.yj-card:nth-child(2){animation-delay:.06s}
-.yj-card:nth-child(3){animation-delay:.12s}
-.yj-card:nth-child(4){animation-delay:.18s}
-@keyframes yj-fade-in{to{opacity:1;transform:translateY(0)}}
-.yj-card:hover{transform:translateY(-4px);box-shadow:0 12px 28px rgba(0,0,0,.12)}
+  @keyframes yj-prog {
+    0% {
+      transform: translateX(-100%)
+    }
 
-/* ── 비디오 영역 (썸네일 + 클릭 재생) ── */
-.yj-video{width:100%;aspect-ratio:9/16;background:#0a0a0a;position:relative;overflow:hidden;cursor:pointer}
-.yj-video iframe{width:100%;height:100%;border:none}
-.yj-video-thumb{width:100%;height:100%;object-fit:cover;display:block;transition:transform .3s ease,filter .3s ease}
-.yj-video:hover .yj-video-thumb{transform:scale(1.03);filter:brightness(.85)}
-.yj-watermark{position:absolute;bottom:8px;right:10px;color:rgba(255,255,255,.5);font-weight:800;font-size:11px;letter-spacing:1.5px;text-shadow:0 1px 3px rgba(0,0,0,.6);pointer-events:none;z-index:9}
+    100% {
+      transform: translateX(400%)
+    }
+  }
 
-/* 재생 버튼 오버레이 */
-.yj-play-btn{
-  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
-  width:56px;height:56px;border-radius:50%;
-  background:rgba(0,0,0,.65);backdrop-filter:blur(4px);
-  display:flex;align-items:center;justify-content:center;
-  transition:background .25s,transform .25s;z-index:10;
-  pointer-events:none;
-}
-.yj-video:hover .yj-play-btn{background:rgba(229,57,53,.9);transform:translate(-50%,-50%) scale(1.08)}
-.yj-play-icon{width:0;height:0;border-style:solid;border-width:10px 0 10px 18px;border-color:transparent transparent transparent #fff;margin-left:3px}
+  .yj-progress.done .yj-progress-inner {
+    width: 100%;
+    animation: none;
+    transition: opacity .5s .3s
+  }
 
-/* Shorts 라벨 */
-.yj-shorts-badge{
-  position:absolute;top:10px;left:10px;z-index:10;
-  display:inline-flex;align-items:center;gap:3px;
-  background:rgba(0,0,0,.55);backdrop-filter:blur(4px);
-  color:#fff;font-size:10px;font-weight:700;letter-spacing:.5px;
-  padding:3px 8px;border-radius:4px;
-}
-.yj-shorts-icon{width:12px;height:12px;fill:#ff0000}
+  .yj-progress.done {
+    opacity: 0;
+    transition: opacity .5s .5s
+  }
 
-/* ── 제품 영역 ── */
-.yj-prod{display:flex;flex-direction:column;flex-grow:1}
-.yj-prod-body{display:flex;padding:12px;gap:10px;align-items:center;flex-grow:1}
-.yj-prod-thumb{width:48px;height:48px;border-radius:8px;border:1px solid #f0f0f0;overflow:hidden;flex-shrink:0;background:#fafafa}
-.yj-prod-thumb img{width:100%;height:100%;object-fit:contain}
-.yj-prod-detail{display:flex;flex-direction:column;min-width:0;gap:2px}
-.yj-prod-name{font-size:12px;font-weight:600;color:#333;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.yj-prod-price-row{display:flex;align-items:baseline;gap:4px;margin-top:2px}
-.yj-prod-price{font-size:16px;font-weight:900;color:#e53935;letter-spacing:-.3px}
+  /* ── 헤더 ── */
+  .yj-header {
+    padding: 8px 0 20px;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    border-bottom: 1px solid #f0f0f0;
+    margin-bottom: 24px
+  }
 
-/* ── 버튼 ── */
-.yj-btn{
-  display:flex;align-items:center;justify-content:center;gap:5px;
-  background:#1a1a1a;color:#fff;
-  padding:11px 0;font-weight:700;font-size:12px;
-  text-decoration:none;letter-spacing:.3px;
-  transition:background .25s;border-top:1px solid #f0f0f0;
-}
-.yj-btn:hover{background:#e53935}
-.yj-btn-arrow{display:inline-block;font-size:10px;transition:transform .25s}
-.yj-btn:hover .yj-btn-arrow{transform:translateX(3px)}
+  .yj-header-left {
+    display: flex;
+    flex-direction: column;
+    gap: 4px
+  }
 
-/* ── 스켈레톤 ── */
-.yj-sk{display:flex;flex-direction:column;border-radius:12px;overflow:hidden;background:#fff;border:1px solid #eaeaea}
-.yj-sk-v{width:100%;aspect-ratio:9/16;background:linear-gradient(180deg,#f5f5f5 0%,#ececec 100%);position:relative;overflow:hidden}
-.yj-sk-body{display:flex;padding:12px;gap:10px;align-items:center}
-.yj-sk-thumb{width:48px;height:48px;border-radius:8px;background:#f0f0f0;flex-shrink:0;position:relative;overflow:hidden}
-.yj-sk-lines{flex:1;display:flex;flex-direction:column;gap:6px}
-.yj-sk-line{height:10px;border-radius:5px;background:#f0f0f0;position:relative;overflow:hidden}
-.yj-sk-line.s{width:55%}.yj-sk-line.m{width:75%}
-.yj-sk-btn{height:40px;background:#f5f5f5;position:relative;overflow:hidden}
+  .yj-title {
+    font-size: 22px;
+    font-weight: 800;
+    color: #1a1a1a;
+    margin: 0;
+    line-height: 1.3;
+    letter-spacing: -.3px
+  }
 
-.yj-sk-v::after,.yj-sk-thumb::after,.yj-sk-line::after,.yj-sk-btn::after{
-  content:'';position:absolute;inset:0;
-  background:linear-gradient(90deg,transparent 25%,rgba(255,255,255,.6) 50%,transparent 75%);
-  background-size:400% 100%;animation:yj-shim 1.8s ease infinite;
-}
-.yj-sk:nth-child(2) *::after{animation-delay:.1s}
-.yj-sk:nth-child(3) *::after{animation-delay:.2s}
-.yj-sk:nth-child(4) *::after{animation-delay:.3s}
-@keyframes yj-shim{0%{background-position:200% 0}100%{background-position:-200% 0}}
+  .yj-title em {
+    font-style: normal;
+    color: #e53935;
+    font-weight: 900
+  }
 
-/* ── 에러 ── */
-.yj-error{padding:48px 20px;text-align:center;color:#bbb;font-size:13px;grid-column:1/-1}
-.yj-error-ico{font-size:32px;margin-bottom:8px;opacity:.6}
+  .yj-sub {
+    font-size: 12px;
+    color: #999;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 400
+  }
 
-/* ── 반응형 ── */
-@media(max-width:1024px){.yj-grid{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:600px){
-  .yj-grid{grid-template-columns:repeat(2,1fr);gap:10px}
-  .yj-title{font-size:18px}
-  .yj-header{flex-direction:column;gap:8px}
-  .yj-channel-tag{align-self:flex-start}
-  .yj-play-btn{width:44px;height:44px}
-  .yj-play-icon{border-width:8px 0 8px 14px}
-}
-@media(max-width:420px){.yj-grid{grid-template-columns:1fr;max-width:320px;margin:0 auto}}
+  .yj-sub-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #4caf50;
+    display: inline-block;
+    animation: yj-blink 2s ease infinite
+  }
+
+  @keyframes yj-blink {
+
+    0%,
+    100% {
+      opacity: 1
+    }
+
+    50% {
+      opacity: .3
+    }
+  }
+
+  .yj-channel-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    color: #888;
+    background: #f7f7f7;
+    border: 1px solid #eee;
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-weight: 600;
+    white-space: nowrap
+  }
+
+  /* ── 그리드 ── */
+  .yj-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px
+  }
+
+  /* ── 카드 ── */
+  .yj-card {
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid #eaeaea;
+    transition: transform .3s cubic-bezier(.22, 1, .36, 1), box-shadow .3s cubic-bezier(.22, 1, .36, 1);
+    opacity: 0;
+    transform: translateY(20px);
+    animation: yj-fade-in .5s cubic-bezier(.22, 1, .36, 1) forwards;
+  }
+
+  .yj-card:nth-child(1) {
+    animation-delay: 0s
+  }
+
+  .yj-card:nth-child(2) {
+    animation-delay: .06s
+  }
+
+  .yj-card:nth-child(3) {
+    animation-delay: .12s
+  }
+
+  .yj-card:nth-child(4) {
+    animation-delay: .18s
+  }
+
+  @keyframes yj-fade-in {
+    to {
+      opacity: 1;
+      transform: translateY(0)
+    }
+  }
+
+  .yj-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, .12)
+  }
+
+  /* ── 비디오 영역 (썸네일 + 클릭 재생) ── */
+  .yj-video {
+    width: 100%;
+    aspect-ratio: 9/16;
+    background: #0a0a0a;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer
+  }
+
+  .yj-video iframe {
+    width: 100%;
+    height: 100%;
+    border: none
+  }
+
+  .yj-video-thumb {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform .3s ease, filter .3s ease
+  }
+
+  .yj-video:hover .yj-video-thumb {
+    transform: scale(1.03);
+    filter: brightness(.85)
+  }
+
+  .yj-watermark {
+    position: absolute;
+    bottom: 8px;
+    right: 10px;
+    color: rgba(255, 255, 255, .5);
+    font-weight: 800;
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, .6);
+    pointer-events: none;
+    z-index: 9
+  }
+
+  /* 재생 버튼 오버레이 */
+  .yj-play-btn {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, .65);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background .25s, transform .25s;
+    z-index: 10;
+    pointer-events: none;
+  }
+
+  .yj-video:hover .yj-play-btn {
+    background: rgba(229, 57, 53, .9);
+    transform: translate(-50%, -50%) scale(1.08)
+  }
+
+  .yj-play-icon {
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 10px 0 10px 18px;
+    border-color: transparent transparent transparent #fff;
+    margin-left: 3px
+  }
+
+  /* Shorts 라벨 */
+  .yj-shorts-badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 10;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    background: rgba(0, 0, 0, .55);
+    backdrop-filter: blur(4px);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .5px;
+    padding: 3px 8px;
+    border-radius: 4px;
+  }
+
+  .yj-shorts-icon {
+    width: 12px;
+    height: 12px;
+    fill: #ff0000
+  }
+
+  /* ── 제품 영역 ── */
+  .yj-prod {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1
+  }
+
+  .yj-prod-body {
+    display: flex;
+    padding: 12px;
+    gap: 10px;
+    align-items: center;
+    flex-grow: 1
+  }
+
+  .yj-prod-thumb {
+    width: 48px;
+    height: 48px;
+    border-radius: 8px;
+    border: 1px solid #f0f0f0;
+    overflow: hidden;
+    flex-shrink: 0;
+    background: #fafafa
+  }
+
+  .yj-prod-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain
+  }
+
+  .yj-prod-detail {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    gap: 2px
+  }
+
+  .yj-prod-name {
+    font-size: 12px;
+    font-weight: 600;
+    color: #333;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden
+  }
+
+  .yj-prod-price-row {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+    margin-top: 2px
+  }
+
+  .yj-prod-price {
+    font-size: 16px;
+    font-weight: 900;
+    color: #e53935;
+    letter-spacing: -.3px
+  }
+
+  /* ── 버튼 ── */
+  .yj-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    background: #1a1a1a;
+    color: #fff;
+    padding: 11px 0;
+    font-weight: 700;
+    font-size: 12px;
+    text-decoration: none;
+    letter-spacing: .3px;
+    transition: background .25s;
+    border-top: 1px solid #f0f0f0;
+  }
+
+  .yj-btn:hover {
+    background: #e53935
+  }
+
+  .yj-btn-arrow {
+    display: inline-block;
+    font-size: 10px;
+    transition: transform .25s
+  }
+
+  .yj-btn:hover .yj-btn-arrow {
+    transform: translateX(3px)
+  }
+
+  /* ── 스켈레톤 ── */
+  .yj-sk {
+    display: flex;
+    flex-direction: column;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #fff;
+    border: 1px solid #eaeaea
+  }
+
+  .yj-sk-v {
+    width: 100%;
+    aspect-ratio: 9/16;
+    background: linear-gradient(180deg, #f5f5f5 0%, #ececec 100%);
+    position: relative;
+    overflow: hidden
+  }
+
+  .yj-sk-body {
+    display: flex;
+    padding: 12px;
+    gap: 10px;
+    align-items: center
+  }
+
+  .yj-sk-thumb {
+    width: 48px;
+    height: 48px;
+    border-radius: 8px;
+    background: #f0f0f0;
+    flex-shrink: 0;
+    position: relative;
+    overflow: hidden
+  }
+
+  .yj-sk-lines {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px
+  }
+
+  .yj-sk-line {
+    height: 10px;
+    border-radius: 5px;
+    background: #f0f0f0;
+    position: relative;
+    overflow: hidden
+  }
+
+  .yj-sk-line.s {
+    width: 55%
+  }
+
+  .yj-sk-line.m {
+    width: 75%
+  }
+
+  .yj-sk-btn {
+    height: 40px;
+    background: #f5f5f5;
+    position: relative;
+    overflow: hidden
+  }
+
+  .yj-sk-v::after,
+  .yj-sk-thumb::after,
+  .yj-sk-line::after,
+  .yj-sk-btn::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent 25%, rgba(255, 255, 255, .6) 50%, transparent 75%);
+    background-size: 400% 100%;
+    animation: yj-shim 1.8s ease infinite;
+  }
+
+  .yj-sk:nth-child(2) *::after {
+    animation-delay: .1s
+  }
+
+  .yj-sk:nth-child(3) *::after {
+    animation-delay: .2s
+  }
+
+  .yj-sk:nth-child(4) *::after {
+    animation-delay: .3s
+  }
+
+  @keyframes yj-shim {
+    0% {
+      background-position: 200% 0
+    }
+
+    100% {
+      background-position: -200% 0
+    }
+  }
+
+  /* ── 에러 ── */
+  .yj-error {
+    padding: 48px 20px;
+    text-align: center;
+    color: #bbb;
+    font-size: 13px;
+    grid-column: 1/-1
+  }
+
+  .yj-error-ico {
+    font-size: 32px;
+    margin-bottom: 8px;
+    opacity: .6
+  }
 </style>
 
 <!-- HTML -->
 <div class="yj-wrap">
-  <div class="yj-progress" id="yj-progress"><div class="yj-progress-inner"></div></div>
+  <div class="yj-progress" id="yj-progress">
+    <div class="yj-progress-inner"></div>
+  </div>
 
   <div class="yj-header">
     <div class="yj-header-left">
@@ -142,131 +511,197 @@
       <p class="yj-sub"><span class="yj-sub-dot"></span>실시간 업데이트</p>
     </div>
     <div class="yj-channel-tag">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="#e53935"><path d="M10 15l5.19-3L10 9v6m11.56-7.83c.13.47.22 1.1.28 1.9.07.8.1 1.49.1 2.09L22 12c0 2.19-.16 3.8-.44 4.83-.25.9-.83 1.48-1.73 1.73-.47.13-1.33.22-2.65.28-1.3.07-2.49.1-3.59.1L12 19c-4.19 0-6.8-.16-7.83-.44-.9-.25-1.48-.83-1.73-1.73-.13-.47-.22-1.1-.28-1.9-.07-.8-.1-1.49-.1-2.09L2 12c0-2.19.16-3.8.44-4.83.25-.9.83-1.48 1.73-1.73.47-.13 1.33-.22 2.65-.28 1.3-.07 2.49-.1 3.59-.1L12 5c4.19 0 6.8.16 7.83.44.9.25 1.48.83 1.73 1.73z"/></svg>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="#e53935">
+        <path
+          d="M10 15l5.19-3L10 9v6m11.56-7.83c.13.47.22 1.1.28 1.9.07.8.1 1.49.1 2.09L22 12c0 2.19-.16 3.8-.44 4.83-.25.9-.83 1.48-1.73 1.73-.47.13-1.33.22-2.65.28-1.3.07-2.49.1-3.59.1L12 19c-4.19 0-6.8-.16-7.83-.44-.9-.25-1.48-.83-1.73-1.73-.13-.47-.22-1.1-.28-1.9-.07-.8-.1-1.49-.1-2.09L2 12c0-2.19.16-3.8.44-4.83.25-.9.83-1.48 1.73-1.73.47-.13 1.33-.22 2.65-.28 1.3-.07 2.49-.1 3.59-.1L12 5c4.19 0 6.8.16 7.83.44.9.25 1.48.83 1.73 1.73z" />
+      </svg>
       YJMOD x 영재컴퓨터
     </div>
   </div>
 
   <div class="yj-grid" id="yj-grid">
-    <div class="yj-sk"><div class="yj-sk-v"></div><div class="yj-sk-body"><div class="yj-sk-thumb"></div><div class="yj-sk-lines"><div class="yj-sk-line"></div><div class="yj-sk-line m"></div><div class="yj-sk-line s"></div></div></div><div class="yj-sk-btn"></div></div>
-    <div class="yj-sk"><div class="yj-sk-v"></div><div class="yj-sk-body"><div class="yj-sk-thumb"></div><div class="yj-sk-lines"><div class="yj-sk-line"></div><div class="yj-sk-line m"></div><div class="yj-sk-line s"></div></div></div><div class="yj-sk-btn"></div></div>
-    <div class="yj-sk"><div class="yj-sk-v"></div><div class="yj-sk-body"><div class="yj-sk-thumb"></div><div class="yj-sk-lines"><div class="yj-sk-line"></div><div class="yj-sk-line m"></div><div class="yj-sk-line s"></div></div></div><div class="yj-sk-btn"></div></div>
-    <div class="yj-sk"><div class="yj-sk-v"></div><div class="yj-sk-body"><div class="yj-sk-thumb"></div><div class="yj-sk-lines"><div class="yj-sk-line"></div><div class="yj-sk-line m"></div><div class="yj-sk-line s"></div></div></div><div class="yj-sk-btn"></div></div>
+    <div class="yj-sk">
+      <div class="yj-sk-v"></div>
+      <div class="yj-sk-body">
+        <div class="yj-sk-thumb"></div>
+        <div class="yj-sk-lines">
+          <div class="yj-sk-line"></div>
+          <div class="yj-sk-line m"></div>
+          <div class="yj-sk-line s"></div>
+        </div>
+      </div>
+      <div class="yj-sk-btn"></div>
+    </div>
+    <div class="yj-sk">
+      <div class="yj-sk-v"></div>
+      <div class="yj-sk-body">
+        <div class="yj-sk-thumb"></div>
+        <div class="yj-sk-lines">
+          <div class="yj-sk-line"></div>
+          <div class="yj-sk-line m"></div>
+          <div class="yj-sk-line s"></div>
+        </div>
+      </div>
+      <div class="yj-sk-btn"></div>
+    </div>
+    <div class="yj-sk">
+      <div class="yj-sk-v"></div>
+      <div class="yj-sk-body">
+        <div class="yj-sk-thumb"></div>
+        <div class="yj-sk-lines">
+          <div class="yj-sk-line"></div>
+          <div class="yj-sk-line m"></div>
+          <div class="yj-sk-line s"></div>
+        </div>
+      </div>
+      <div class="yj-sk-btn"></div>
+    </div>
+    <div class="yj-sk">
+      <div class="yj-sk-v"></div>
+      <div class="yj-sk-body">
+        <div class="yj-sk-thumb"></div>
+        <div class="yj-sk-lines">
+          <div class="yj-sk-line"></div>
+          <div class="yj-sk-line m"></div>
+          <div class="yj-sk-line s"></div>
+        </div>
+      </div>
+      <div class="yj-sk-btn"></div>
+    </div>
   </div>
 </div>
 
 <!-- JavaScript -->
 <script>
-(function () {
-  var API_URL = 'https://yjmod-youtube.vercel.app/api/latest-shorts';
-  var CACHE_KEY = 'yj_shorts_v3';
-  var CACHE_TTL = 6 * 60 * 60 * 1000;
+  (function () {
+    var API_URL = 'https://yjmod-youtube.vercel.app/api/latest-shorts';
+    var CACHE_KEY = 'yj_shorts_v3';
+    var CACHE_TTL = 6 * 60 * 60 * 1000;
 
-  try { localStorage.removeItem('yj_shorts_v2'); } catch(e){}
+    try { localStorage.removeItem('yj_shorts_v2'); } catch (e) { }
 
-  function setProgress(done) {
-    var el = document.getElementById('yj-progress');
-    if (el && done) el.classList.add('done');
-  }
-
-  /* 썸네일 클릭 → iframe 교체 */
-  function activateVideo(videoWrap, videoId) {
-    var embed = 'https://www.youtube.com/embed/' + videoId
-      + '?autoplay=1&mute=0&loop=1&playlist=' + videoId + '&rel=0&playsinline=1';
-    videoWrap.innerHTML =
-      '<iframe src="' + embed + '" frameborder="0"' +
-      ' allow="autoplay;accelerometer;clipboard-write;encrypted-media;gyroscope;picture-in-picture"' +
-      ' allowfullscreen></iframe>' +
-      '<div class="yj-watermark">YJ MOD</div>';
-    videoWrap.style.cursor = 'default';
-  }
-
-  function renderCards(data) {
-    var grid = document.getElementById('yj-grid');
-    if (!grid) { console.error('[YJ] grid not found'); return; }
-    if (!data || data.length === 0) {
-      grid.innerHTML = '<div class="yj-error"><div class="yj-error-ico">📭</div>추천 PC 정보를 불러오지 못했습니다.</div>';
-      setProgress(true);
-      return;
+    function setProgress(done) {
+      var el = document.getElementById('yj-progress');
+      if (el && done) el.classList.add('done');
     }
-    grid.innerHTML = '';
-    data.forEach(function (item) {
-      var card = document.createElement('div');
-      card.className = 'yj-card';
-      var link = item.productLink || item.link;
-      var thumb = item.productImage
-        ? '<img src="' + item.productImage + '" alt="" loading="lazy">'
-        : '<div style="font-size:9px;color:#ddd;text-align:center;line-height:48px">-</div>';
 
-      /* YouTube 썸네일 (iframe 대신 이미지) */
-      var ytThumb = 'https://i.ytimg.com/vi/' + item.videoId + '/oar2.jpg';
-      var ytThumbFallback = 'https://i.ytimg.com/vi/' + item.videoId + '/hqdefault.jpg';
+    /* 호버 재생을 자동 재생으로 변경 */
+    function sendCmd(iframe, func) {
+      try { iframe.contentWindow.postMessage(JSON.stringify({ event: 'command', func: func, args: '' }), '*'); } catch (e) { }
+    }
 
-      card.innerHTML =
-        '<div class="yj-video" data-vid="' + item.videoId + '">' +
+    var autoPlayIndex = 0;
+    function setupAutoPlay(videoWrap, videoId) {
+      var thumbEl = videoWrap.querySelector('.yj-video-thumb');
+      var playBtn = videoWrap.querySelector('.yj-play-btn');
+      var badge = videoWrap.querySelector('.yj-shorts-badge');
+      /* 순차 지연: 1번째 500ms, 2번째 1500ms, 3번째 2500ms, 4번째 3500ms */
+      var delay = 500 + (autoPlayIndex++ * 1000);
+
+      setTimeout(function () {
+        var embed = 'https://www.youtube.com/embed/' + videoId
+          + '?autoplay=1&mute=1&loop=1&playlist=' + videoId + '&rel=0&playsinline=1&enablejsapi=1&origin=' + encodeURIComponent(window.location.origin);
+        var iframe = document.createElement('iframe');
+        iframe.src = embed;
+        iframe.frameBorder = '0';
+        iframe.allow = 'autoplay;accelerometer;clipboard-write;encrypted-media;gyroscope;picture-in-picture';
+        iframe.allowFullscreen = true;
+        iframe.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:none;z-index:5;opacity:0;transition:opacity .4s';
+        videoWrap.appendChild(iframe);
+        iframe.onload = function () {
+          iframe.style.opacity = '1';
+          if (thumbEl) thumbEl.style.opacity = '0';
+          if (playBtn) playBtn.style.display = 'none';
+          if (badge) badge.style.opacity = '0';
+          sendCmd(iframe, 'playVideo');
+        };
+      }, delay);
+    }
+
+    function renderCards(data) {
+      var grid = document.getElementById('yj-grid');
+      if (!grid) { console.error('[YJ] grid not found'); return; }
+      if (!data || data.length === 0) {
+        grid.innerHTML = '<div class="yj-error"><div class="yj-error-ico">📭</div>추천 PC 정보를 불러오지 못했습니다.</div>';
+        setProgress(true);
+        return;
+      }
+      grid.innerHTML = '';
+      data.forEach(function (item) {
+        var card = document.createElement('div');
+        card.className = 'yj-card';
+        var link = item.productLink || item.link;
+        var thumb = item.productImage
+          ? '<img src="' + item.productImage + '" alt="" loading="lazy">'
+          : '<div style="font-size:9px;color:#ddd;text-align:center;line-height:48px">-</div>';
+
+        /* YouTube 썸네일 (iframe 대신 이미지) */
+        var ytThumb = 'https://i.ytimg.com/vi/' + item.videoId + '/oar2.jpg';
+        var ytThumbFallback = 'https://i.ytimg.com/vi/' + item.videoId + '/hqdefault.jpg';
+
+        card.innerHTML =
+          '<div class="yj-video" data-vid="' + item.videoId + '">' +
           '<img class="yj-video-thumb" src="' + ytThumb + '"' +
           ' onerror="this.src=\'' + ytThumbFallback + '\'"' +
           ' alt="' + (item.title || '') + '" loading="lazy">' +
           '<div class="yj-shorts-badge">' +
-            '<svg class="yj-shorts-icon" viewBox="0 0 24 24"><path d="M10 14.65v-5.3L15 12l-5 2.65zm7.77-4.33c-.77-.32-1.2-.5-1.2-.5L18 9.06c1.84-.96 2.53-3.23 1.56-5.06s-3.24-2.53-5.07-1.56L6 6.94c-1.29.68-2.07 2.04-2 3.49.07 1.42.93 2.67 2.22 3.25.03.01 1.2.5 1.2.5L6 14.93c-1.83.97-2.53 3.24-1.56 5.07.97 1.83 3.24 2.53 5.07 1.56l8.5-4.5c1.29-.68 2.06-2.04 1.99-3.49-.07-1.42-.94-2.68-2.23-3.25z"/></svg>' +
-            'Shorts' +
+          '<svg class="yj-shorts-icon" viewBox="0 0 24 24"><path d="M10 14.65v-5.3L15 12l-5 2.65zm7.77-4.33c-.77-.32-1.2-.5-1.2-.5L18 9.06c1.84-.96 2.53-3.23 1.56-5.06s-3.24-2.53-5.07-1.56L6 6.94c-1.29.68-2.07 2.04-2 3.49.07 1.42.93 2.67 2.22 3.25.03.01 1.2.5 1.2.5L6 14.93c-1.83.97-2.53 3.24-1.56 5.07.97 1.83 3.24 2.53 5.07 1.56l8.5-4.5c1.29-.68 2.06-2.04 1.99-3.49-.07-1.42-.94-2.68-2.23-3.25z"/></svg>' +
+          'Shorts' +
           '</div>' +
           '<div class="yj-play-btn"><div class="yj-play-icon"></div></div>' +
           '<div class="yj-watermark">YJ MOD</div>' +
-        '</div>' +
-        '<div class="yj-prod">' +
+          '</div>' +
+          '<div class="yj-prod">' +
           '<div class="yj-prod-body">' +
-            '<div class="yj-prod-thumb">' + thumb + '</div>' +
-            '<div class="yj-prod-detail">' +
-              '<div class="yj-prod-name">' + (item.productTitle || '') + '</div>' +
-              '<div class="yj-prod-price-row">' +
-                '<span class="yj-prod-price">' + (item.productPrice || '') + '</span>' +
-              '</div>' +
-            '</div>' +
+          '<div class="yj-prod-thumb">' + thumb + '</div>' +
+          '<div class="yj-prod-detail">' +
+          '<div class="yj-prod-name">' + (item.productTitle || '') + '</div>' +
+          '<div class="yj-prod-price-row">' +
+          '<span class="yj-prod-price">' + (item.productPrice || '') + '</span>' +
+          '</div>' +
+          '</div>' +
           '</div>' +
           '<a href="' + link + '" target="_blank" class="yj-btn">제품 바로가기 <span class="yj-btn-arrow">\u2192</span></a>' +
-        '</div>';
+          '</div>';
 
-      /* 클릭 이벤트 등록 */
-      var videoWrap = card.querySelector('.yj-video');
-      videoWrap.addEventListener('click', function () {
-        activateVideo(this, this.getAttribute('data-vid'));
+        /* 자동 재생 등록 */
+        var videoWrap = card.querySelector('.yj-video');
+        setupAutoPlay(videoWrap, item.videoId);
+
+        grid.appendChild(card);
       });
+      setProgress(true);
+    }
 
-      grid.appendChild(card);
-    });
-    setProgress(true);
-  }
-
-  function load() {
-    try {
-      var c = JSON.parse(localStorage.getItem(CACHE_KEY) || 'null');
-      if (c && (Date.now() - c.ts) < CACHE_TTL && c.data && c.data.length > 0) {
-        renderCards(c.data);
-        return;
-      }
-    } catch (e) {}
-
-    fetch(API_URL)
-      .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
-      .then(function (d) {
-        if (d && d.length > 0) {
-          try { localStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), data: d })); } catch(e){}
+    function load() {
+      try {
+        var c = JSON.parse(localStorage.getItem(CACHE_KEY) || 'null');
+        if (c && (Date.now() - c.ts) < CACHE_TTL && c.data && c.data.length > 0) {
+          renderCards(c.data);
+          return;
         }
-        renderCards(d);
-      })
-      .catch(function (e) {
-        console.error('[YJ]', e);
-        setProgress(true);
-        var g = document.getElementById('yj-grid');
-        if (g) g.innerHTML = '<div class="yj-error"><div class="yj-error-ico">\u26A0\uFE0F</div>잠시 후 다시 시도해 주세요.</div>';
-      });
-  }
+      } catch (e) { }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', load);
-  } else {
-    load();
-  }
-})();
+      fetch(API_URL)
+        .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+        .then(function (d) {
+          if (d && d.length > 0) {
+            try { localStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), data: d })); } catch (e) { }
+          }
+          renderCards(d);
+        })
+        .catch(function (e) {
+          console.error('[YJ]', e);
+          setProgress(true);
+          var g = document.getElementById('yj-grid');
+          if (g) g.innerHTML = '<div class="yj-error"><div class="yj-error-ico">\u26A0\uFE0F</div>잠시 후 다시 시도해 주세요.</div>';
+        });
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', load);
+    } else {
+      load();
+    }
+  })();
 </script>
