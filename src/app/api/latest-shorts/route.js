@@ -90,7 +90,7 @@ async function getVideoInfo(videoId) {
     };
 }
 
-export const dynamic = 'force-static';
+export const dynamic = 'force-dynamic'
 
 export async function GET() {
     try {
@@ -163,7 +163,7 @@ export async function GET() {
             status: 200,
             headers: {
                 'Content-Type': 'application/json',
-                'Cache-Control': 'public, s-maxage=21600, stale-while-revalidate=3600',
+                'Cache-Control': 'no-store'
                 'Access-Control-Allow-Origin': '*',
                 'Access-Control-Allow-Methods': 'GET',
             },
