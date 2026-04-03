@@ -1,7 +1,6 @@
 import * as cheerio from 'cheerio';
 
-// 6시간마다 Vercel CDN 캐시 재검증
-export const revalidate = 21600;
+export const dynamic = 'force-dynamic';
 
 const CHANNEL_ID = 'UCaOwfLJxMjZ8RCBwg8_c90A';
 
@@ -48,9 +47,6 @@ async function getLatestVideoIds() {
 }
 
 async function getVideoInfo(videoId) {
-    // /shorts/VIDEO_ID 로 접근:
-    //   Short 영상 → HTTP 200, URL이 /shorts/ 유지
-    //   일반 영상 → 303 리다이렉트 → /watch?v= URL 로 이동
     const res = await fetchWithTimeout(`https://www.youtube.com/shorts/${videoId}`, {
         headers: {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36',
@@ -58,19 +54,13 @@ async function getVideoInfo(videoId) {
         },
     }, 8000);
     if (!res.ok) return null;
-
-    // 리다이렉트 후 URL에 /shorts/ 가 없으면 → Shorts가 아님
     if (!res.url.includes('/shorts/')) return null;
 
     const html = await res.text();
 
-    // 제목: og:title 메타 태그 (HTML 엔티티 디코딩)
     const titleMatch = html.match(/<meta(?:\s+[^>]*)?\s+(?:property="og:title"|name="title")\s+content="([^"]+)"/);
     const title = decodeHtmlEntities(titleMatch?.[1] || '');
 
-    // product URL 추출 (두 가지 형태 처리):
-    //   watch 페이지: youtube.com/redirect?q=https%3A%2F%2Fwww.youngjaecomputer...
-    //   shorts 페이지: {"text":"https://www.youngjaecomputer..."}
     let productLink = null;
     const redirectMatch = html.match(/q=(https%3A%2F%2F(?:www\.)?youngjaecomputer[^"&\\\s]+)/i);
     if (redirectMatch) {
@@ -90,14 +80,11 @@ async function getVideoInfo(videoId) {
     };
 }
 
-export const dynamic = 'force-dynamic'
-
 export async function GET() {
     try {
         const videoIds = await getLatestVideoIds();
         const results = [];
 
-        // 한 번에 6개씩 병렬 처리하여 로딩 속도 최적화
         const batchSize = 6;
         for (let i = 0; i < videoIds.length; i += batchSize) {
             if (results.length >= 4) break;
@@ -146,7 +133,6 @@ export async function GET() {
                     }
                     return null;
                 } catch (e) {
-                    // 개별 영상 에러 → 무시하고 다음 영상 진행
                     return null;
                 }
             });
@@ -163,7 +149,7 @@ export async function GET() {
             status: 200,
             headers: {
                 'Content-Type': 'application/json',
-                'Cache-Control': 'no-store'
+                'Cache-Control': 'no-store',
                 'Access-Control-Allow-Origin': '*',
                 'Access-Control-Allow-Methods': 'GET',
             },
