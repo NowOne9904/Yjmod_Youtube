@@ -1,6 +1,7 @@
 import * as cheerio from 'cheerio';
 
-export const dynamic = 'force-dynamic';
+export const dynamic = 'force-static';
+export const revalidate = 21600; // 6시간 캐시
 
 const CHANNEL_ID = 'UCaOwfLJxMjZ8RCBwg8_c90A';
 
